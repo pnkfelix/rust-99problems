@@ -1,0 +1,55 @@
+* list_work.rs
+
+** explored doing Iterable.
+   CLOCK: [2014-03-14 Fri 22:00]--[2014-03-14 Fri 22:08] =>  0:08
+   without (static) existentials nor lifetimes in the Iterator trait
+   params, seems impossible to encode right now.
+
+** so lets just make two variants
+   CLOCK: [2014-03-14 Fri 22:08]--[2014-03-14 Fri 22:14] =>  0:06
+
+   * ah, noticed that the problem statement is actually find the last *box*,
+     not the last *element*.  So the analogous thing in Rust land is slices.
+
+   * so in fact there is no need for two variants.  And I am done with P01.
+
+** P02
+   CLOCK: [2014-03-14 Fri 22:14]--[2014-03-14 Fri 22:16] =>  0:02
+
+** P03
+   CLOCK: [2014-03-14 Fri 22:16]--[2014-03-14 Fri 22:21] =>  0:05
+
+   * some sigil twiddling delayed this one.  Still not 100% happy with how
+     I resolved those.
+
+** P04
+   CLOCK: [2014-03-14 Fri 22:21]--[2014-03-14 Fri 22:23] =>  0:02
+
+** P05
+   CLOCK: [2014-03-14 Fri 22:23]--[2014-03-14 Fri 22:28] =>  0:05
+
+   * took longer than I expected, in part because our vec::reverse is
+     an in-place reverse (which to be fair might have qualified in
+     this problem) and in part because I wasted time trying to get one
+     using slices to work which does not make sense unless the elem
+     type A is also cloneable.
+
+** P06
+   CLOCK: [2014-03-14 Fri 22:28]--[2014-03-14 Fri 22:32] =>  0:04
+
+
+** P07
+   CLOCK: [2014-03-15 Sat 00:13]--[2014-03-15 Sat 00:24] =>  0:11
+   CLOCK: [2014-03-14 Fri 22:32]--[2014-03-14 Fri 22:42] =>  0:10
+
+   * Here is where things start to get interesting, we are now in the land
+     of lists as trees.
+
+   * Spent most of the time figuring out some quick Sexp enum definition;
+     chose one that is either Atom of X (A) or List of owned ~[Sexp<X>] (L).
+
+** P08
+   CLOCK: [2014-03-15 Sat 00:24]--[2014-03-15 Sat 00:41] =>  0:17
+
+   * there was a trivial method using built-in methods, but I wanted to write
+     this one out in preparation for P09 which seems harder.
