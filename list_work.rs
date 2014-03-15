@@ -309,15 +309,21 @@ mod vec_work {
                    encode_modified(owned_vec!(a a a a b c c a a d e e e e)));
     }
 
+    fn repeated<A:Clone>(elem: A, count: uint) -> ~[A] {
+        let mut v = vec::build(Some(count), |push| {
+            for _ in range(0, count-1) {
+                push(elem.clone())
+            }
+        });
+        if count > 0 { v.push(elem) }
+        v
+    }
+
     impl<A:Clone> ModRLE<A> {
         fn expand(self) -> ~[A] {
             match self {
                 J(elem) => ~[elem],
-                C(count, elem) => vec::build(Some(count), |push| {
-                    for _ in range(0, count) {
-                        push(elem.clone())
-                    }
-                })
+                C(count, elem) => repeated(elem, count)
             }
         }
     }
@@ -386,6 +392,33 @@ mod vec_work {
     fn test_encode_direct() {
         assert_eq!(~[C(4, a), J(b), C(2, c), C(2, a), J(d), C(4, e)],
                    encode_direct(owned_vec!(a a a a b c c a a d e e e e)));
+    }
+
+    /// P14 (*) Duplicate the elements of a list.
+    /// Example:
+    /// * (dupli '(a b c c d))
+    /// (A A B B C C C C D D)
+    fn dupli<A:Clone>(l: ~[A]) -> ~[A] {
+        l.move_iter().flat_map(|elem| (~[elem.clone(), elem]).move_iter()).collect()
+    }
+    #[test]
+    fn test_dupli() {
+        assert_eq!(owned_vec!(a a b b c c c c d d),
+                   dupli(owned_vec!(a b c c d)))
+    }
+
+    /// P15 (**) Replicate the elements of a list a given number of times.
+    /// Example:
+    /// * (repli '(a b c) 3)
+    /// (A A A B B B C C C)
+    fn repli<A:Clone>(l: ~[A], count: uint) -> ~[A] {
+        l.move_iter().flat_map(|elem| repeated(elem, count).move_iter()).collect()
+    }
+
+    #[test]
+    fn test_repli() {
+        assert_eq!(owned_vec!(a a a b b b c c c),
+                   repli(~[a, b, c], 3))
     }
 
 }
