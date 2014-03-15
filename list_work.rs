@@ -51,6 +51,7 @@ pub mod sym {
 mod vec_work {
     use super::sexp::{Sexp,A,L};
     use super::sym::*;
+    use std::mem::swap;
     use std::vec;
 
     /// P01 Find the last *box* of a "list."
@@ -194,8 +195,6 @@ mod vec_work {
     /// * (pack '(a a a a b c c a a d e e e e))
     /// ((A A A A) (B) (C C) (A A) (D) (E E E E))
     fn pack_iter<X:Eq,I:Iterator<X>>(mut it: I) -> ~[~[X]] {
-        use std::mem::swap;
-
         let mut lists = ~[];
         let mut v = it.next();
         loop {
@@ -353,35 +352,29 @@ mod vec_work {
     ///    ((4 A) B (2 C) (2 A) D (4 E))
 
     fn encode_direct_iter<A:Eq,I:Iterator<A>>(mut it: I) -> ~[ModRLE<A>] {
-        let mut entries = ~[];
-        let mut v = it.next();
-
         fn entry<A>(count: uint, elem: A) -> ModRLE<A> {
             if count == 1 { J(elem) } else { C(count, elem) }
         }
 
-        loop {
-            match v {
-                None => return entries,
-                Some(val) => {
-                    let mut count = 1;
-                    loop {
-                        let next = it.next();
-                        match next {
-                            None => {
-                                entries.push(entry(count, val));
-                                v = None;
-                                break;
-                            }
-                            Some(n) => {
-                                if n == val {
-                                    count += 1;
-                                    continue;
-                                } else {
-                                    entries.push(entry(count, val));
-                                    v = Some(n);
-                                    break;
-                                }
+        let mut entries = ~[];
+        match it.next() {
+            None => return entries,
+            Some(mut val) => {
+                let mut count = 1;
+                loop {
+                    match it.next() {
+                        None => {
+                            entries.push(entry(count, val));
+                            return entries;
+                        }
+                        Some(mut n) => {
+                            if n == val {
+                                count += 1;
+                                continue;
+                            } else {
+                                swap(&mut val, &mut n);
+                                entries.push(entry(count, n));
+                                count = 1;
                             }
                         }
                     }
