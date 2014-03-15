@@ -49,7 +49,133 @@
      chose one that is either Atom of X (A) or List of owned ~[Sexp<X>] (L).
 
 ** P08
+   CLOCK: [2014-03-15 Sat 07:51]--[2014-03-15 Sat 09:07] =>  1:16
    CLOCK: [2014-03-15 Sat 00:24]--[2014-03-15 Sat 00:41] =>  0:17
 
    * there was a trivial method using built-in methods, but I wanted to write
      this one out in preparation for P09 which seems harder.
+
+   * redoing it again in terms of iter and skip_while
+
+   * but no, it turns out the latter is not easy (skip_while returns a wrapping iterator,
+     but all I really want to do is skip a bunch of entries on *this* iteration)
+
+   * interestingly, even this does not work, because i have not figured out how
+     to encode the fact that `pred` is only called during the execution of drop_while itself,
+     and is not itself moved into the value returned by drop_while
+     (perhaps unboxed closures?).
+
+    ```
+    fn drop_until<'a, X, I:Iterator<X>>(it: &mut I, pred: |&X| -> bool) -> Option<X> {
+        let mut next = it.next();
+        loop {
+            match next {
+                Some(ref val) if !pred(val) => {}
+                _ => return next,
+            }
+            next = it.next();
+        }
+    }
+
+    fn compress_iter<X:Eq,I:Iterator<X>>(mut it: I) -> ~[X] {
+        let mut result = ~[];
+        let mut v = it.next();
+        'outer:
+        loop {
+            match v {
+                None => return result,
+                Some(val) => {
+                    loop {
+                        v = drop_until(&mut it, |v| v != &val);
+                        result.push(val);
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+    * and this variant falls into the same trap.  (I am passing the Peekable by value
+      because I cannot pass it by mut ref *and* borrow that reference multiple times within
+      drop_while)
+
+    fn drop_while<X, I:Iterator<X>>(mut it: Peekable<X, I>, pred: |&X| -> bool) -> Peekable<X, I> {
+        loop {
+            match it.peek() {
+                None => break,
+                Some(next) if !pred(next) => break,
+                _ => {}
+            }
+            it.next();
+        }
+        it
+    }
+
+    fn compress_iter<X:Eq,I:Iterator<X>>(it: I) -> ~[X] {
+        let mut result = ~[];
+        let mut it = it.peekable();
+        let mut v = it.next();
+        'outer:
+        loop {
+            match v {
+                None => return result,
+                Some(val) => {
+                    loop {
+                        it = drop_while(it, |p| p == &val);
+                        v = it.next();
+                        result.push(val);
+                    }
+                }
+            }
+        }
+    }
+
+   * Finally made Iterator based variant that works and that I can stomch.
+     It is about as long in LOC as the vector based one, but has no calls
+     to unwrap and no reversing copy at the end.
+
+** P09
+   CLOCK: [2014-03-15 Sat 09:21]--[2014-03-15 Sat 09:29] =>  0:08
+   CLOCK: [2014-03-15 Sat 09:07]--[2014-03-15 Sat 09:20] =>  0:13
+   CLOCK: [2014-03-15 Sat 07:43]--[2014-03-15 Sat 07:51] =>  0:08
+
+   * Working through the process of P08 made this one really fast going.
+
+   * Making variant of it illustrating that not only do I honor
+     move-semantics, but I also preserve relative ordering
+
+** P10
+   CLOCK: [2014-03-15 Sat 09:29]--[2014-03-15 Sat 09:33] =>  0:04
+
+   * Super fast
+
+** Getting tired of writing commas when transcribing tests, lets make a macro for that
+   CLOCK: [2014-03-15 Sat 09:34]--[2014-03-15 Sat 10:21] =>  0:47
+
+   * Went down big rat hole of trying to make an sexp! macro.
+     I cannot figure out how to get the macro parser to handle something
+     that free-form, though.
+
+** P11
+   CLOCK: [2014-03-15 Sat 10:22]--[2014-03-15 Sat 10:27] =>  0:05
+
+   * This exercise is of somewhat less value in the context of Rust,
+     since the space saved by dropping the associated count is
+     offset by the space spent on an enum tag.
+
+   * Maybe for sub-word sized values it will eventually make sense,
+     maybe should check whether such support is already in place.
+     No, even then its dumb, unless you also ~-allocate the
+     (Count, Payload) tuple.
+
+** P12
+   CLOCK: [2014-03-15 Sat 10:28]--[2014-03-15 Sat 10:34] =>  0:06
+
+** P13
+   CLOCK: [2014-03-15 Sat 10:41]--[2014-03-15 Sat 10:54] =>  0:13
+   CLOCK: [2014-03-15 Sat 10:34]--[2014-03-15 Sat 10:35] =>  0:01
+
+** Seeing if I can simplify either or both of P09 and P13
+   CLOCK: [2014-03-15 Sat 10:55]
+
+   * this is after reflecting on whether nested loops are needed
