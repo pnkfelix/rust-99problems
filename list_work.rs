@@ -51,6 +51,7 @@ pub mod sym {
 mod vec_work {
     use super::sexp::{Sexp,A,L};
     use super::sym::*;
+    use std::iter;
     use std::mem::swap;
     use std::vec;
 
@@ -319,6 +320,19 @@ mod vec_work {
         v
     }
 
+    type IotaIter<'a, A> = iter::Unfold<'a, A, (uint, A)>;
+    fn repeat_iter<A:Clone>(elem: A, count: uint) -> IotaIter<A> {
+        iter::Unfold::new((count, elem), |&(ref mut count, ref elem)| {
+            if *count == 0 {
+                None
+            } else {
+                *count -= 1;
+                Some(elem.clone())
+            }
+        })
+    }
+
+
     impl<A:Clone> ModRLE<A> {
         fn expand(self) -> ~[A] {
             match self {
@@ -412,7 +426,7 @@ mod vec_work {
     /// * (repli '(a b c) 3)
     /// (A A A B B B C C C)
     fn repli<A:Clone>(l: ~[A], count: uint) -> ~[A] {
-        l.move_iter().flat_map(|elem| repeated(elem, count).move_iter()).collect()
+        l.move_iter().flat_map(|elem| repeat_iter(elem, count)).collect()
     }
 
     #[test]
