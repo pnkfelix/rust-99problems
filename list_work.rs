@@ -195,33 +195,28 @@ mod vec_work {
     /// * (pack '(a a a a b c c a a d e e e e))
     /// ((A A A A) (B) (C C) (A A) (D) (E E E E))
     fn pack_iter<X:Eq,I:Iterator<X>>(mut it: I) -> ~[~[X]] {
+        #[allow(unnecessary_parens)]; // in below case, parens clarify,
         let mut lists = ~[];
-        let mut v = it.next();
-        loop {
-            match v {
-                None => return lists,
-                Some(mut val) => {
-                    let mut curr = ~[];
-                    loop {
-                        let next = it.next();
-                        match next {
-                            None => {
-                                curr.push(val);
+        match it.next() {
+            None => return lists,
+            Some(mut val) => {
+                let mut curr = ~[];
+                loop {
+                    match it.next() {
+                        None => {
+                            curr.push(val);
+                            lists.push(curr);
+                            return lists;
+                        }
+                        Some(mut n) => {
+                            let same = (n == val);
+                            swap(&mut n, &mut val);
+                            curr.push(n);
+                            if same {
+                                continue;
+                            } else {
                                 lists.push(curr);
-                                v = None;
-                                break;
-                            }
-                            Some(mut n) => {
-                                if n == val {
-                                    swap(&mut val, &mut n);
-                                    curr.push(n);
-                                    continue;
-                                } else {
-                                    curr.push(val);
-                                    lists.push(curr);
-                                    v = Some(n);
-                                    break;
-                                }
+                                curr = ~[];
                             }
                         }
                     }
