@@ -18,25 +18,31 @@ pub mod sexp {
 mod vec_work {
     use super::sexp::{Sexp,A,L};
 
-    /// Find the last box of a "list."
+    static a : &'static str = "a";
+    static b : &'static str = "b";
+    static c : &'static str = "c";
+    static d : &'static str = "d";
+    static e : &'static str = "e";
+
+    /// P01 Find the last *box* of a "list."
     /// Example:
     /// * (my-last '(a b c d))
     /// (D)
     pub fn my_last<'a, A>(x: &'a [A]) -> &'a [A] { x.slice_from(x.len()-1) }
 
     #[test]
-    fn test_my_last() { assert!(["d"] == my_last(["a", "b", "c", "d"])); }
+    fn test_my_last() { assert!([d] == my_last([a, b, c, d])); }
 
-    /// Find the last but one box of a list.
+    /// P02 Find the last but one box of a list.
     /// Example:
     /// * (my-but-last '(a b c d))
     /// (C D)
     pub fn my_but_last<'a, A>(x: &'a [A]) -> &'a [A] { x.slice_from(x.len() - 2) }
 
     #[test]
-    fn test_my_but_last() { assert!(["c", "d"] == my_but_last(["a", "b", "c", "d"])); }
+    fn test_my_but_last() { assert!([c, d] == my_but_last([a, b, c, d])); }
 
-    /// (*) Find the K'th element of a list.
+    /// P03 (*) Find the K'th element of a list.
     /// The first element in the list is number 1.
     /// Example:
     /// * (element-at '(a b c d e) 3)
@@ -45,35 +51,35 @@ mod vec_work {
 
     #[test]
     fn test_element_at() {
-        assert!("c" == *element_at(["a", "b", "c", "d", "e"], 3))
+        assert!(c == *element_at([a, b, c, d, e], 3))
     }
 
-    /// Find the number of elements of a list.
+    /// P04 Find the number of elements of a list.
     #[test]
     fn test_num_elems() {
-        assert!(5 == ["a", "b", "c", "d", "e"].len())
+        assert!(5 == [a, b, c, d, e].len())
 }
 
-    /// Reverse a list.
+    /// P05 Reverse a list.
     #[test]
     fn test_rev_list() {
         fn rev<A>(v: ~[A]) -> ~[A] { v.move_rev_iter().collect() }
-        assert!(~["c", "b", "a"] == rev(~["a", "b", "c"]));
+        assert!(~[c, b, a] == rev(~[a, b, c]));
     }
 
-    /// Find out whether a list is a palindrome.
+    /// P06 Find out whether a list is a palindrome.
     /// A palindrome can be read forward or backward; e.g. (x a m a x)
     fn is_palindrome<A:Eq>(v: &[A]) -> bool {
         v.iter().zip(v.rev_iter()).all(|(lft, rgt)| lft == rgt)
     }
     #[test]
     fn test_is_palindrome() {
-        assert!(is_palindrome(["x", "a", "m", "a", "x"]));
-        assert!(is_palindrome(["x", "a", "a", "x"]));
-        assert!(!is_palindrome(["x", "a", "m", "a"]));
+        assert!(is_palindrome(["x", a, "m", a, "x"]));
+        assert!(is_palindrome(["x", a, a, "x"]));
+        assert!(!is_palindrome(["x", a, "m", a]));
     }
 
-    /// (**) Flatten a nested list structure.
+    /// P07 (**) Flatten a nested list structure.
     /// Transform a list, possibly holding lists as elements into a
     /// `flat' list by replacing each list with its elements
     /// (recursively).
@@ -92,11 +98,11 @@ mod vec_work {
 
     #[test]
     fn test_my_flatten() {
-        assert!(~["A", "B", "C", "D", "E"] ==
-                flatten(L(~[A("A"), L(~[A("B"), L(~[A("C")]), A("D")]), A("E")])));
+        assert!(~[a, b, c, d, e] ==
+                flatten(L(~[A(a), L(~[A(b), L(~[A(c)]), A(d)]), A(e)])));
     }
 
-    /// (**) Eliminate consecutive duplicates of list elements.
+    /// P08 (**) Eliminate consecutive duplicates of list elements.
     /// If a list contains repeated elements they should be replaced
     /// with a single copy of the element. The order of the elements
     /// should not be changed.
@@ -125,8 +131,21 @@ mod vec_work {
 
     #[test]
     fn test_compress() {
-        assert!(~["A", "B", "C", "A", "D", "E"] ==
-                compress(~["A", "A", "A", "A", "B", "C", "C",
-                           "A", "A", "D", "E", "E", "E", "E"]))
+        assert!(~[a, b, c, a, d, e] ==
+                compress(~[a, a, a, a, b, c, c,
+                           a, a, d, e, e, e, e]))
+    }
+
+    /// P09 (**) Pack consecutive duplicates of list elements into sublists.
+    /// If a list contains repeated elements they should be placed in separate sublists.
+    ///
+    /// Example:
+    /// * (pack '(a a a a b c c a a d e e e e))
+    /// ((A A A A) (B) (C C) (A A) (D) (E E E E))
+    #[test]
+    #[cfg(off)]
+    fn test_pack() {
+        assert!(~[((a a a a) (b) (c c) (a a) (d) (e e e e))] ==
+                pack(~[a a a a b c c a a d e e e e]));
     }
 }
