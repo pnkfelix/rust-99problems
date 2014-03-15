@@ -176,6 +176,56 @@
    CLOCK: [2014-03-15 Sat 10:34]--[2014-03-15 Sat 10:35] =>  0:01
 
 ** Seeing if I can simplify either or both of P09 and P13
-   CLOCK: [2014-03-15 Sat 10:55]
+   CLOCK: [2014-03-15 Sat 10:55]--[2014-03-15 Sat 11:09] =>  0:14
 
    * this is after reflecting on whether nested loops are needed
+
+** P14
+   CLOCK: [2014-03-15 Sat 11:09]--[2014-03-15 Sat 11:12] =>  0:03
+
+** P15
+   CLOCK: [2014-03-15 Sat 11:12]--[2014-03-15 Sat 11:19] =>  0:07
+
+** Making Iterator that returns a given element K times
+   CLOCK: [2014-03-15 Sat 11:19]--[2014-03-15 Sat 11:20] =>  0:01
+
+   * actually, range().map(..) would probably serve just fine here.
+
+   * eh, it does not, because we do not have unboxed closures, and so
+     I cannot put the elem cloning closure into the IotaIter (which
+     needs to own the closure so it can be invoked later)
+
+** Refactoring earlier code to use iter::Unfold instead of building intermediate vecs.
+   CLOCK: [2014-03-15 Sat 11:21]--[2014-03-15 Sat 11:40] =>  0:19
+
+** P16
+   CLOCK: [2014-03-15 Sat 11:40]--[2014-03-15 Sat 12:00] =>  0:20
+
+   * some of this time was spent dealing with fallout of introducing the rest of
+     the lowercase alphabet as static constant symbols
+
+** P17
+   CLOCK: [2014-03-15 Sat 12:00]--[2014-03-15 Sat 12:13] =>  0:13
+
+   * trickier than I expected, in part because while we have easy ways
+     to index-split slices, and easy ways to partition owned vecs
+     based on an element predicate, we do not have an easy way to
+     partition owned vecs based on indexes.
+
+   * any chance that the vec::chunks method could possibly help here?  Not clear.
+
+** P18
+   CLOCK: [2014-03-15 Sat 12:17]--[2014-03-15 Sat 12:22] =>  0:05
+
+** P19
+   CLOCK: [2014-03-15 Sat 12:22]--[2014-03-15 Sat 12:27] =>  0:05
+
+** P20
+   CLOCK: [2014-03-15 Sat 12:27]--[2014-03-15 Sat 12:29] =>  0:02
+
+** P21
+   CLOCK: [2014-03-15 Sat 12:29]--[2014-03-15 Sat 12:32] =>  0:03
+
+** P22
+   CLOCK: [2014-03-15 Sat 12:32]--[2014-03-15 Sat 12:34] =>  0:02
+

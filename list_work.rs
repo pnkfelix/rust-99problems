@@ -45,7 +45,10 @@ pub mod sym {
         ( $($i:ident)* ) => { $(def_sym!($i))* }
     }
 
-    def_syms!(a b c d e m x)
+    def_syms!(a b c d e f g h i
+              j k l m n o p q r s t u w y x z)
+
+    def_sym!(alfa)
 }
 
 mod vec_work {
@@ -59,7 +62,7 @@ mod vec_work {
     /// Example:
     /// * (my-last '(a b c d))
     /// (D)
-    pub fn my_last<'a, A>(v: &'a [A]) -> &'a [A] { v.slice_from(v.len()-1) }
+    pub fn my_last<'a, A>(vec: &'a [A]) -> &'a [A] { vec.slice_from(vec.len()-1) }
 
     #[test]
     fn test_my_last() { assert!([d] == my_last(static_vec!(a b c d))); }
@@ -78,7 +81,7 @@ mod vec_work {
     /// Example:
     /// * (element-at '(a b c d e) 3)
     /// C
-    pub fn element_at<'a, A>(v: &'a [A], i:uint) -> &'a A { &v[i - 1] }
+    pub fn element_at<'a, A>(v: &'a [A], idx:uint) -> &'a A { &v[idx - 1] }
 
     #[test]
     fn test_element_at() {
@@ -120,10 +123,10 @@ mod vec_work {
     /// (A B C D E)
     ///
     /// Hint: Use the predefined functions list and append.
-    fn flatten<X>(s:Sexp<X>) -> ~[X] {
-        match s {
+    fn flatten<X>(sexp:Sexp<X>) -> ~[X] {
+        match sexp {
             A(atom) => ~[atom],
-            L(l) => l.move_iter().flat_map(|v|flatten(v).move_iter()).collect(),
+            L(vec) => vec.move_iter().flat_map(|v|flatten(v).move_iter()).collect(),
         }
     }
 
@@ -181,7 +184,7 @@ mod vec_work {
         }
     }
 
-    fn compress<X:Eq>(l: ~[X]) -> ~[X] { compress_iter(l.move_iter()) }
+    fn compress<X:Eq>(vec: ~[X]) -> ~[X] { compress_iter(vec.move_iter()) }
 
     #[test]
     fn test_compress() {
@@ -209,10 +212,10 @@ mod vec_work {
                             lists.push(curr);
                             return lists;
                         }
-                        Some(mut n) => {
-                            let same = (n == val);
-                            swap(&mut n, &mut val);
-                            curr.push(n);
+                        Some(mut next) => {
+                            let same = (next == val);
+                            swap(&mut next, &mut val);
+                            curr.push(next);
                             if same {
                                 continue;
                             } else {
@@ -226,7 +229,7 @@ mod vec_work {
         }
     }
 
-    fn pack<A:Eq>(l: ~[A]) -> ~[~[A]] { pack_iter(l.move_iter()) }
+    fn pack<A:Eq>(vec: ~[A]) -> ~[~[A]] { pack_iter(vec.move_iter()) }
 
     #[test]
     fn test_pack() {
@@ -275,8 +278,8 @@ mod vec_work {
     /// * (encode '(a a a a b c c a a d e e e e))
     /// ((4 A) (1 B) (2 C) (2 A) (1 D)(4 E))
 
-    fn encode<A:Eq>(l: ~[A]) -> ~[(uint, A)] {
-        pack(l).move_iter().map(|l| (l.len(), l[0])).collect()
+    fn encode<A:Eq>(vec: ~[A]) -> ~[(uint, A)] {
+        pack(vec).move_iter().map(|subvec| (subvec.len(), subvec[0])).collect()
     }
 
     #[test]
@@ -294,12 +297,12 @@ mod vec_work {
     #[deriving(Eq,Show)]
     enum ModRLE<A> { C(uint, A), J(A) }
 
-    fn encode_modified<A:Eq>(l: ~[A]) -> ~[ModRLE<A>] {
-        pack(l).move_iter().map(|l| {
-            if l.len() == 1 {
-                J(l[0])
+    fn encode_modified<A:Eq>(vec: ~[A]) -> ~[ModRLE<A>] {
+        pack(vec).move_iter().map(|subvec| {
+            if subvec.len() == 1 {
+                J(subvec[0])
             } else {
-                C(l.len(), l[0])
+                C(subvec.len(), subvec[0])
             }
         }).collect()
     }
@@ -312,7 +315,7 @@ mod vec_work {
 
     fn repeated<A:Clone>(elem: A, count: uint) -> ~[A] {
         let mut v = vec::build(Some(count), |push| {
-            for _ in range(0, count-1) {
+            for _ in iter::range(0, count-1) {
                 push(elem.clone())
             }
         });
@@ -345,8 +348,8 @@ mod vec_work {
     /// P12 (**) Decode a run-length encoded list.
     /// Given a run-length code list generated as specified in problem
     /// P11. Construct its uncompressed version.
-    fn decode_modified<A:Eq+Clone>(l: ~[ModRLE<A>]) -> ~[A] {
-        l.move_iter().flat_map(|entry| entry.expand().move_iter()).collect()
+    fn decode_modified<A:Eq+Clone>(vec: ~[ModRLE<A>]) -> ~[A] {
+        vec.move_iter().flat_map(|entry| entry.expand().move_iter()).collect()
     }
 
     #[test]
@@ -382,13 +385,13 @@ mod vec_work {
                             entries.push(entry(count, val));
                             return entries;
                         }
-                        Some(mut n) => {
-                            if n == val {
+                        Some(mut next) => {
+                            if next == val {
                                 count += 1;
                                 continue;
                             } else {
-                                swap(&mut val, &mut n);
-                                entries.push(entry(count, n));
+                                swap(&mut val, &mut next);
+                                entries.push(entry(count, next));
                                 count = 1;
                             }
                         }
@@ -398,8 +401,8 @@ mod vec_work {
         }
     }
 
-    fn encode_direct<A:Eq>(l: ~[A]) -> ~[ModRLE<A>] {
-        encode_direct_iter(l.move_iter())
+    fn encode_direct<A:Eq>(vec: ~[A]) -> ~[ModRLE<A>] {
+        encode_direct_iter(vec.move_iter())
     }
 
     #[test]
@@ -412,8 +415,8 @@ mod vec_work {
     /// Example:
     /// * (dupli '(a b c c d))
     /// (A A B B C C C C D D)
-    fn dupli<A:Clone>(l: ~[A]) -> ~[A] {
-        l.move_iter().flat_map(|elem| (~[elem.clone(), elem]).move_iter()).collect()
+    fn dupli<A:Clone>(vec: ~[A]) -> ~[A] {
+        vec.move_iter().flat_map(|elem| (~[elem.clone(), elem]).move_iter()).collect()
     }
     #[test]
     fn test_dupli() {
@@ -425,8 +428,8 @@ mod vec_work {
     /// Example:
     /// * (repli '(a b c) 3)
     /// (A A A B B B C C C)
-    fn repli<A:Clone>(l: ~[A], count: uint) -> ~[A] {
-        l.move_iter().flat_map(|elem| repeat_iter(elem, count)).collect()
+    fn repli<A:Clone>(vec: ~[A], count: uint) -> ~[A] {
+        vec.move_iter().flat_map(|elem| repeat_iter(elem, count)).collect()
     }
 
     #[test]
@@ -435,4 +438,155 @@ mod vec_work {
                    repli(~[a, b, c], 3))
     }
 
+
+    /// P16 (**) Drop every N'th element from a list.
+    /// Example:
+    /// * (drop '(a b c d e f g h i k) 3)
+    /// (A B D E G H K)
+    fn drop_iter<'a, A,I:Iterator<A>>(iter:I, skip:uint) -> iter::Unfold<'a, A, (uint,uint,I)> {
+        iter::Unfold::new((skip, skip, iter), |&(skip, ref mut countdown, ref mut iter)| {
+            if *countdown == 1 {
+                iter.next();
+                *countdown = skip;
+            }
+            *countdown -= 1;
+            iter.next()
+        })
+    }
+
+    fn drop<A>(vec: ~[A], skip: uint) -> ~[A] {
+        drop_iter(vec.move_iter(), skip).collect()
+    }
+
+    #[test]
+    fn test_drop() {
+        assert_eq!(     owned_vec!(a b   d e   g h   k),
+                   drop(owned_vec!(a b c d e f g h i k), 3))
+    }
+
+    /// P17 (*) Split a list into two parts; the length of the first part is given.
+    /// Do not use any predefined predicates.
+    ///
+    /// Example:
+    /// * (split '(a b c d e f g h i k) 3)
+    /// ( (A B C) (D E F G H I K))
+    fn split_sliced<'a, A>(vec: &'a mut [A], count: uint) -> (&'a mut [A], &'a mut [A]) {
+        vec.mut_split_at(count)
+    }
+
+    fn split_cloning<A:Clone>(mut vec: ~[A], count: uint) -> (~[A], ~[A]) {
+        let (lft, rgt) = split_sliced(vec, count);
+        (lft.to_owned(), rgt.to_owned())
+    }
+
+    fn split<A>(mut vec: ~[A], count: uint) -> (~[A], ~[A]) {
+        let (mut lft, mut rgt) = (vec::with_capacity(count), vec::with_capacity(vec.len() - count));
+        for _ in iter::range(count, vec.len()).rev() {
+            rgt.push(vec.pop().unwrap());
+        }
+        for _ in iter::range(0, count) {
+            lft.push(vec.pop().unwrap());
+        }
+        lft.reverse();
+        rgt.reverse();
+        (lft, rgt)
+    }
+
+    #[test]
+    fn test_split() {
+        assert_eq!((owned_vec!(a b c),
+                    owned_vec!(d e f g h i k)),
+                   split_cloning(owned_vec!(a b c d e f g h i k), 3))
+        assert_eq!((owned_vec!(a b c),
+                    owned_vec!(d e f g h i k)),
+                   split(owned_vec!(a b c d e f g h i k), 3))
+    }
+
+    fn slice<A:Clone>(vec: ~[A], i_: uint, k_: uint) -> ~[A] {
+        vec.slice(i_-1, k_).to_owned()
+    }
+
+    /// P18 (**) Extract a slice from a list.
+    /// Given two indices, I and K, the slice is the list containing
+    /// the elements between the I'th and K'th element of the original
+    /// list (both limits included). Start counting the elements with
+    /// 1.
+    ///
+    /// Example:
+    /// * (slice '(a b c d e f g h i k) 3 7)
+    /// (C D E F G)
+    #[test]
+    fn test_slice() {
+        assert_eq!(owned_vec!(c d e f g),
+                   slice(owned_vec!(a b c d e f g h i k), 3, 7));
+    }
+
+    /// P19 (**) Rotate a list N places to the left.
+    /// Examples:
+    /// * (rotate '(a b c d e f g h) 3)
+    /// (D E F G H A B C)
+    ///
+    /// * (rotate '(a b c d e f g h) -2)
+    /// (G H A B C D E F)
+    ///
+    /// Hint: Use the predefined functions length and append, as well as the result of problem P17.
+    fn rotate<A>(vec:~[A], shift: int) -> ~[A] {
+        let prefix = if shift >= 0 { shift } else { vec.len() as int + shift } as uint;
+        let (lft,mut rgt) = split(vec, prefix);
+        rgt.push_all_move(lft);
+        rgt
+    }
+
+    #[test]
+    fn test_rotate() {
+        assert_eq!(owned_vec!(d e f g h a b c),
+                   rotate(owned_vec!(a b c d e f g h), 3));
+        assert_eq!(owned_vec!(g h a b c d e f),
+                   rotate(owned_vec!(a b c d e f g h), -2));
+    }
+
+    /// P20 (*) Remove the K'th element from a list.
+    /// Example:
+    /// * (remove-at '(a b c d) 2)
+    /// (A C D)
+    fn remove_at<A>(mut vec: ~[A], idx: uint) -> ~[A] {
+        vec.remove(idx-1);
+        vec
+    }
+
+    #[test]
+    fn test_remove_at() {
+        assert_eq!(owned_vec!(a c d),
+                   remove_at(owned_vec!(a b c d), 2))
+    }
+
+    /// P21 (*) Insert an element at a given position into a list.
+    /// Example:
+    /// * (insert-at 'alfa '(a b c d) 2)
+    /// (A ALFA B C D)
+    fn insert_at<A>(elem: A, mut vec: ~[A], idx: uint) -> ~[A] {
+        vec.insert(idx-1, elem);
+        vec
+    }
+
+    #[test]
+    fn test_insert_at() {
+        assert_eq!(owned_vec!(a alfa b c d),
+                   insert_at(alfa, owned_vec!(a b c d), 2))
+    }
+
+    /// P22 (*) Create a list containing all integers within a given range.
+    /// If first argument is smaller than second, produce a list in decreasing order.
+    /// Example:
+    /// * (range 4 9)
+    /// (4 5 6 7 8 9)
+    fn range(low: int, high: int) -> ~[int] {
+        iter::range(low, high+1).collect()
+    }
+
+    #[test]
+    fn test_range() {
+        assert_eq!(owned_vec!(4 5 6 7 8 9),
+                   range(4, 9))
+    }
 }
