@@ -589,4 +589,98 @@ mod vec_work {
         assert_eq!(owned_vec!(4 5 6 7 8 9),
                    range(4, 9))
     }
+
+    /// P23 (**) Extract a given number of randomly selected elements from a list.
+    /// The selected items shall be returned in a list.
+    /// Example:
+    /// * (rnd-select '(a b c d e f g h) 3)
+    /// (E D A)
+    ///
+    /// Hint: Use the built-in random number generator and the result of problem P20.
+    fn rnd_select<A>(mut vec: ~[A], count: uint) -> ~[A] {
+        use rand;
+        use rand::distributions::{IndependentSample, Range};
+        let mut result = vec::with_capacity(count);
+        let mut rng = rand::task_rng();
+        for _ in iter::range(0, count) {
+            let range = Range::new(0, vec.len());
+            let idx = range.ind_sample(&mut rng);
+            match vec.remove(idx) {
+                None => break, // or could fail!
+                Some(elem) => result.push(elem)
+            }
+        }
+        result
+    }
+
+    /// Random functions are hard to test properly, but we can at least sanity check.
+    #[test]
+    fn test_rnd_select() {
+        let domain = owned_vec!(a b c d e f g h);
+        let result = rnd_select(domain.clone(), 3);
+        assert_eq!(result.len(), 3);
+        assert!(result.iter().all(|elem| domain.contains(elem)));
+    }
+
+    /// P24 (*) Lotto: Draw N different random numbers from the set 1..M.
+    /// The selected numbers shall be returned in a list.
+    /// Example:
+    /// * (lotto-select 6 49)
+    /// (23 1 17 33 21 37)
+    ///
+    /// Hint: Combine the solutions of problems P22 and P23.
+    fn lotto_select(count: uint, max: int) -> ~[int] {
+        rnd_select(range(1, max), count)
+    }
+
+    fn sorted<A:TotalOrd>(mut vec: ~[A]) -> ~[A] { vec.sort(); vec }
+    fn deduped<A:Eq>(mut vec: ~[A]) -> ~[A] { vec.dedup(); vec }
+    #[test]
+    fn test_lotto_select() {
+        let result = lotto_select(6, 49);
+        assert_eq!(result.len(), 6);
+        assert!(result.iter().all(|&num| 1 <= num && num <= 49));
+        assert!(deduped(sorted(result)).len() == 6);
+    }
+
+    /// P25 (*) Generate a random permutation of the elements of a list.
+    /// Example:
+    /// * (rnd-permu '(a b c d e f))
+    /// (B A D C E F)
+    ///
+    /// Hint: Use the solution of problem P23.
+    fn rnd_permu<A>(vec: ~[A]) -> ~[A] {
+        let len = vec.len();
+        rnd_select(vec, len)
+    }
+
+    #[test]
+    fn test_rnd_permu() {
+        let domain = owned_vec!(a b c d e f);
+        let result = rnd_permu(domain.clone());
+        assert_eq!(sorted(domain), sorted(result));
+    }
+
+    /// P26 (**) Generate the combinations of K distinct objects
+    /// chosen from the N elements of a list
+    ///
+    /// In how many ways can a committee of 3 be chosen from a group
+    /// of 12 people? We all know that there are C(12,3) = 220
+    /// possibilities (C(N,K) denotes the well-known binomial
+    /// coefficients). For pure mathematicians, this result may be
+    /// great. But we want to really generate all the possibilities in
+    /// a list.
+    ///
+    /// Example:
+    /// * (combination 3 '(a b c d e f))
+    /// ((A B C) (A B D) (A B E) ... ) 
+    fn combination<A>(count: uint, vec: ~[A]) -> ~[~[A]] {
+        fail!("not implemented yet");
+    }
+
+    #[test]
+    fn test_combination() {
+        assert_eq!(combination(3, owned_vec!(a b c d)),
+                   owned_vec!(~[a,b,c] ~[a,b,d] ~[a,c,d] ~[b,c,d]));
+    }
 }
