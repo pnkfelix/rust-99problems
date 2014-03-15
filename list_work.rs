@@ -674,13 +674,35 @@ mod vec_work {
     /// Example:
     /// * (combination 3 '(a b c d e f))
     /// ((A B C) (A B D) (A B E) ... ) 
-    fn combination<A>(count: uint, vec: ~[A]) -> ~[~[A]] {
-        fail!("not implemented yet");
+    fn combination<A:Clone>(count: uint, vec: &[A]) -> ~[~[A]] {
+        if vec.len() < count {
+            println!("combination A: {} {:?}", count, vec);
+            return ~[];
+        } else if count == 0 {
+            return ~[~[]];
+        } else if vec.len() == count {
+            println!("combination B: {} {:?}", count, vec);
+            return ~[vec.to_owned()];
+        } else {
+            println!("combination C: {} {:?}", count, vec);
+            let mut soln = ~[];
+            for idx in iter::range(0u, vec.len()) {
+                let mut one_less = vec.to_owned();
+                let elem = one_less.remove(idx).unwrap();
+                let subprob = combination(count - 1, one_less);
+                for readded in subprob.move_iter().map(|mut v| { v.push(elem.clone()); v }) {
+                    soln.push(readded);
+                }
+            }
+            println!("combination: {} {:?} soln: {:?}", count, vec, soln);
+
+            return soln;
+        }
     }
 
     #[test]
     fn test_combination() {
-        assert_eq!(combination(3, owned_vec!(a b c d)),
+        assert_eq!(combination(3, static_vec!(a b c d)),
                    owned_vec!(~[a,b,c] ~[a,b,d] ~[a,c,d] ~[b,c,d]));
     }
 }
