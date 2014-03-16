@@ -303,7 +303,6 @@ fn test_goldbach() {
 }
 
 
-// 
 // P41 (**) A list of Goldbach compositions.
 //     Given a range of integers by its lower and upper limit, print a list of all even numbers and their Goldbach composition.
 // 
@@ -324,3 +323,49 @@ fn test_goldbach() {
 //     1382 = 61 + 1321
 //     1856 = 67 + 1789
 //     1928 = 61 + 1867
+
+#[deriving(Eq,Show)]
+struct GoldbachComposition<I> {
+    num: I,
+    equals: (I, I)
+}
+
+fn goldbach_list<I:num::Integer+Clone+::std::fmt::Show>(
+    low_incl: I, high_incl: I, threshold: Option<I>) -> ~[GoldbachComposition<I>] {
+    let one : I = One::one();
+    let two : I = one + one;
+    let mut result = ~[];
+    let mut curr = if low_incl <= two {
+        two + two
+    } else if low_incl.is_even() {
+        low_incl
+    } else {
+        low_incl + one
+    };
+    let threshold = threshold.unwrap_or(Zero::zero());
+    while curr <= high_incl {
+        let (lft, rgt) = goldbach(curr.clone());
+        if lft > threshold && rgt > threshold {
+            result.push(GoldbachComposition{ num: curr.clone(), equals: (lft, rgt) });
+        }
+        curr = curr + two;
+    }
+    result
+}
+
+#[test]
+fn test_goldbach_list() {
+    assert_eq!(goldbach_list(9, 20, None),
+               ~[GoldbachComposition{ num: 10, equals: (3,  7) },
+                 GoldbachComposition{ num: 12, equals: (5,  7) },
+                 GoldbachComposition{ num: 14, equals: (3, 11) },
+                 GoldbachComposition{ num: 16, equals: (3, 13) },
+                 GoldbachComposition{ num: 18, equals: (5, 13) },
+                 GoldbachComposition{ num: 20, equals: (3, 17) }]);
+
+    assert_eq!(goldbach_list(1, 2000, Some(50)),
+               ~[GoldbachComposition{ num:  992, equals: (73,  919) },
+                 GoldbachComposition{ num: 1382, equals: (61, 1321) },
+                 GoldbachComposition{ num: 1856, equals: (67, 1789) },
+                 GoldbachComposition{ num: 1928, equals: (61, 1867) }]);
+}

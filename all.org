@@ -361,5 +361,5 @@
      well on anything close to a bignum.
 
 ** P41
-   CLOCK: [2014-03-16 Sun 18:49]
+   CLOCK: [2014-03-16 Sun 18:49]--[2014-03-16 Sun 19:07] =>  0:18
 
