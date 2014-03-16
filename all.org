@@ -394,3 +394,8 @@
    * Lets see if I can have some fun with "overloading" on this one.
 
    * Refactoring existing code to overload took 25min
+
+   * Transcribing the given test and mixing in ~[S] took 8min.
+     (Most spent on the transcription since the order of my output
+     differs from the example and I haven't felt like trying to
+     recreate that level of fidelity.)
