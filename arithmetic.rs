@@ -209,7 +209,7 @@ fn totient_phi_improved<I:num::Integer+Clone>(m:I) -> I {
     let zero : I = Zero::zero();
     let f = prime_factors_mult(m);
     // 10 ==> (2 1) (5 1) ==> (2-1) * (2 ** 0) + (5 - 1)*(5 ** 0) 
-    //                     == 1 + 4 == 5 which does not match phi(10) given above...
+    //                     == 1 + 4 == 5 which does not match phi(10) == 4 given above...
     f.move_iter().fold(zero, |b, (factor, count)| {
         b + (factor - one) * std_num::pow(factor, count - 1)
     })
