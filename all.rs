@@ -9,6 +9,7 @@ use std::from_str::from_str;
 
 pub mod list_work;
 pub mod arithmetic;
+pub mod logic_and_codes;
 
 pub fn main() {
     println!("Hello World");

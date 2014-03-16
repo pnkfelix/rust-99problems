@@ -363,3 +363,31 @@
 ** P41
    CLOCK: [2014-03-16 Sun 18:49]--[2014-03-16 Sun 19:07] =>  0:18
 
+* logic_and_codes.rs
+** P46
+   CLOCK: [2014-03-16 Sun 21:05]--[2014-03-16 Sun 21:06] =>  0:01
+   CLOCK: [2014-03-16 Sun 20:44]--[2014-03-16 Sun 20:57] =>  0:13
+   CLOCK: [2014-03-16 Sun 20:15]--[2014-03-16 Sun 20:27] =>  0:12
+   CLOCK: [2014-03-16 Sun 19:27]--[2014-03-16 Sun 19:31] =>  0:04
+   CLOCK: [2014-03-16 Sun 19:11]--[2014-03-16 Sun 19:13] =>  0:02
+
+   * Some difficulty interpreting what this problem is asking for
+     outside the context of Prolog (possibly perhaps the nature of
+     that language may make it easy to conflate an enumerated
+     data-type and a predicate), but from skimming over the O'Caml
+     solution to this problem, it seems like my initial instinct to
+     encode this as an enum was valid.
+
+   * Got something building, but the transcribed test is failing,
+     so I suspect I got some of the details wrong in the interpreter.
+     Ah, I mistranscribed the example into the test, (once again).
+
+** P47
+   CLOCK: [2014-03-16 Sun 23:06]--[2014-03-16 Sun 23:22] =>  0:16
+
+   * Yay operators
+
+** P48
+   CLOCK: [2014-03-16 Sun 23:23]--[2014-03-16 Sun 23:23] =>  0:00
+
+   * Lets see if I can have some fun with "overloading" on this one.
