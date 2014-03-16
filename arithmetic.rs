@@ -357,17 +357,18 @@ fn goldbach_list<I:num::Integer+Clone+::std::fmt::Show>(
 
 #[test]
 fn test_goldbach_list() {
+    use GBC = self::GoldbachComposition;
     assert_eq!(goldbach_list(9, 20, None),
-               ~[GoldbachComposition{ num: 10, equals: (3,  7) },
-                 GoldbachComposition{ num: 12, equals: (5,  7) },
-                 GoldbachComposition{ num: 14, equals: (3, 11) },
-                 GoldbachComposition{ num: 16, equals: (3, 13) },
-                 GoldbachComposition{ num: 18, equals: (5, 13) },
-                 GoldbachComposition{ num: 20, equals: (3, 17) }]);
+               ~[GBC{ num: 10, equals: (3,  7) },
+                 GBC{ num: 12, equals: (5,  7) },
+                 GBC{ num: 14, equals: (3, 11) },
+                 GBC{ num: 16, equals: (3, 13) },
+                 GBC{ num: 18, equals: (5, 13) },
+                 GBC{ num: 20, equals: (3, 17) }]);
 
     assert_eq!(goldbach_list(1, 2000, Some(50)),
-               ~[GoldbachComposition{ num:  992, equals: (73,  919) },
-                 GoldbachComposition{ num: 1382, equals: (61, 1321) },
-                 GoldbachComposition{ num: 1856, equals: (67, 1789) },
-                 GoldbachComposition{ num: 1928, equals: (61, 1867) }]);
+               ~[GBC{ num:  992, equals: (73,  919) },
+                 GBC{ num: 1382, equals: (61, 1321) },
+                 GBC{ num: 1856, equals: (67, 1789) },
+                 GBC{ num: 1928, equals: (61, 1867) }]);
 }
