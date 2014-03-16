@@ -61,7 +61,7 @@ fn interp<Sym:Eq>(env: |Sym| -> Goal, expr: Expr<Sym>) -> Goal {
     }
 }
 
-fn table<Sym:Eq+Clone>(a: Sym, b: Sym, expr: Expr<Sym>) -> ~[(Goal, Goal, Goal)] {
+fn table<Sym:Eq+Clone>((a, b): (Sym, Sym), expr: Expr<Sym>) -> ~[(Goal, Goal, Goal)] {
     let inputs = ~[(True, True), (True, Fail), (Fail, True), (Fail, Fail)];
     inputs.move_iter().map(|(a_val, b_val)| {
         let env = |s:Sym| -> Goal {
@@ -77,7 +77,7 @@ fn table<Sym:Eq+Clone>(a: Sym, b: Sym, expr: Expr<Sym>) -> ~[(Goal, Goal, Goal)]
 fn test_table() {
     let a = Var("a");
     let b = Var("b");
-    assert_eq!(table("a", "b", And(~a.clone(), ~Or(~a.clone(), ~b.clone()))),
+    assert_eq!(table(("a", "b"), And(~a.clone(), ~Or(~a.clone(), ~b.clone()))),
                ~[(True, True, True),
                  (True, Fail, True),
                  (Fail, True, Fail),
@@ -113,7 +113,7 @@ impl<S:Clone> Not<Expr<S>> for Expr<S> {
 fn test_table_ops_sugar() {
     let a = Var("a");
     let b = Var("b");
-    assert_eq!(table("a", "b", a & (a | ! b)),
+    assert_eq!(table(("a", "b"), a & (a | ! b)),
                ~[(True, True, True),
                  (True, Fail, True),
                  (Fail, True, Fail),
