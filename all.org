@@ -388,6 +388,9 @@
    * Yay operators
 
 ** P48
-   CLOCK: [2014-03-16 Sun 23:23]--[2014-03-16 Sun 23:23] =>  0:00
+   CLOCK: [2014-03-16 Sun 23:48]--[2014-03-16 Sun 23:56] =>  0:08
+   CLOCK: [2014-03-16 Sun 23:23]--[2014-03-16 Sun 23:48] =>  0:25
 
    * Lets see if I can have some fun with "overloading" on this one.
+
+   * Refactoring existing code to overload took 25min

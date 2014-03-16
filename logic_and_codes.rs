@@ -1,3 +1,7 @@
+use std::vec;
+use std::num::pow;
+use std::num::Bitwise;
+
 // Logic and Codes
 // 
 // P46 (**) Truth tables for logical expressions.
@@ -61,15 +65,46 @@ fn interp<Sym:Eq>(env: |Sym| -> Goal, expr: Expr<Sym>) -> Goal {
     }
 }
 
-fn table<Sym:Eq+Clone>((a, b): (Sym, Sym), expr: Expr<Sym>) -> ~[(Goal, Goal, Goal)] {
-    let inputs = ~[(True, True), (True, Fail), (Fail, True), (Fail, Fail)];
-    inputs.move_iter().map(|(a_val, b_val)| {
+trait ToSymList<S> {
+    fn to_sym_list(&self) -> ~[S];
+}
+
+impl<S:Clone> ToSymList<S> for (S,S) {
+    fn to_sym_list(&self) -> ~[S] {
+        let &(ref a, ref b) = self;
+        ~[a.clone(), b.clone()]
+    }
+}
+
+fn subseqs<X:Clone>(lst: &[X]) -> ~[~[X]] {
+    let count = pow(2u, lst.len());
+    let mut ret = vec::with_capacity(count);
+    for i in range(0,count) {
+        let mut curr = vec::with_capacity(i.count_ones());
+        for j in range(0, lst.len()) {
+            if i & (1 << j) != 0 {
+                curr.push(lst[j].clone());
+            }
+        }
+        ret.push(curr);
+    }
+    ret
+}
+
+fn table<Sym:Eq+Clone+TotalOrd, L:ToSymList<Sym>>(l:L, expr: Expr<Sym>) -> ~[(~[Goal], Goal)] {
+    let all_syms = l.to_sym_list();
+    let subseqs = subseqs(all_syms);
+    subseqs.move_iter().rev().map(|syms| {
         let env = |s:Sym| -> Goal {
-            if s == a { a_val }
-            else if s == b { b_val }
-            else { fail!("unknown sym"); }
+            if syms.contains(&s) {
+                True
+            } else {
+                Fail
+            }
         };
-        (a_val, b_val, interp(env, expr.clone()))
+        let context : ~[_] = all_syms.iter().map(|s|env(s.clone())).collect();
+        let input : Expr<Sym> = expr.clone();
+        (context, interp(env, input))
     }).collect()
 }
 
@@ -78,10 +113,10 @@ fn test_table() {
     let a = Var("a");
     let b = Var("b");
     assert_eq!(table(("a", "b"), And(~a.clone(), ~Or(~a.clone(), ~b.clone()))),
-               ~[(True, True, True),
-                 (True, Fail, True),
-                 (Fail, True, Fail),
-                 (Fail, Fail, Fail)]);
+               ~[(~[True, True], True),
+                 (~[Fail, True], Fail),
+                 (~[True, Fail], True),
+                 (~[Fail, Fail], Fail)]);
 }
 
 
@@ -109,15 +144,29 @@ impl<S:Clone> Not<Expr<S>> for Expr<S> {
     }
 }
 
+impl<S:Clone> BitXor<Expr<S>, Expr<S>> for Expr<S> {
+    fn bitxor(&self, rhs: &Expr<S>) -> Expr<S> {
+        Xor(~self.clone(), ~rhs.clone())
+    }
+}
+
+/// hack: use >> to denote EQL for logical expressions, since I cannot
+/// override the return type for Eq trait.
+impl<S:Clone> Shr<Expr<S>, Expr<S>> for Expr<S> {
+    fn shr(&self, rhs: &Expr<S>) -> Expr<S> {
+        Equ(~self.clone(), ~rhs.clone())
+    }
+}
+
 #[test]
 fn test_table_ops_sugar() {
     let a = Var("a");
     let b = Var("b");
     assert_eq!(table(("a", "b"), a & (a | ! b)),
-               ~[(True, True, True),
-                 (True, Fail, True),
-                 (Fail, True, Fail),
-                 (Fail, Fail, Fail)]);
+               ~[(~[True, True], True),
+                 (~[Fail, True], Fail),
+                 (~[True, Fail], True),
+                 (~[Fail, Fail], Fail)]);
 }
 
 // P48 (**) Truth tables for logical expressions (3).
@@ -133,6 +182,26 @@ fn test_table_ops_sugar() {
 //     fail true fail true
 //     fail fail true true
 //     fail fail fail true
+
+impl<S:Clone> ToSymList<S> for ~[S] {
+    fn to_sym_list(&self) -> ~[S] { self.clone() }
+}
+
+#[test]
+fn test_table_generalized() {
+    let a = Var("a");
+    let b = Var("b");
+    let c = Var("c");
+    assert_eq!(table(~["a", "b", "c"], (a & (b | c)) >> (a & b) | (a & c)),
+               ~[(~[True, True, True], True),
+                 (~[Fail, True, True], True),
+                 (~[True, Fail, True], True),
+                 (~[Fail, Fail, True], True),
+                 (~[True, True, Fail], True),
+                 (~[Fail, True, Fail], True),
+                 (~[True, Fail, Fail], True),
+                 (~[Fail, Fail, Fail], True)]);
+}
 
 // 
 // P49 (**) Gray code.
