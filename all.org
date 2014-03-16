@@ -239,6 +239,7 @@
    CLOCK: [2014-03-15 Sat 13:02]--[2014-03-15 Sat 13:11] =>  0:09
 
 ** P26
+   CLOCK: [2014-03-16 Sun 07:24]--[2014-03-16 Sun 07:41] =>  0:17
    CLOCK: [2014-03-15 Sat 14:07]--[2014-03-15 Sat 14:12] =>  0:05
    CLOCK: [2014-03-15 Sat 13:51]--[2014-03-15 Sat 13:59] =>  0:08
    CLOCK: [2014-03-15 Sat 13:11]--[2014-03-15 Sat 13:19] =>  0:08
@@ -246,3 +247,57 @@
    * more stymied by this one, classic failure to reconsider the base
      case handling after I later decided to change the structure of
      the recursion
+
+   * (plus I made the classic error of not seeing the two recursive
+     cases, re_add and no_add, up front)
+
+** P27
+   CLOCK: [2014-03-16 Sun 09:25]--[2014-03-16 Sun 09:59] =>  0:32
+   CLOCK: [2014-03-16 Sun 09:00]--[2014-03-16 Sun 09:25] =>  0:25
+   CLOCK: [2014-03-16 Sun 08:41]--[2014-03-16 Sun 09:00] =>  0:19
+   CLOCK: [2014-03-16 Sun 07:41]--[2014-03-16 Sun 08:41] =>  1:00
+
+   * Spent an hour on this one, the large bulk of the time spent attempting to
+     write the test data for the first function by hand.  But that was dumb.
+     Lets get smart.
+
+   * Well, getting "smart" now means that I do have a test that passes, but the
+     whole thing runs quite noticeably slow.
+
+   * So I hard-coded a cut-and-pasted version of the naive-algorithm's
+     output (post sorting).
+
+   * ready to move on to part b now
+
+   * part b took less time than part a, in part because I largely
+     copied the logic from part a.  More time was then spent trying to
+     figure out a test failure (answer: my manually entered test data
+     was flawed).
+
+** P28
+   CLOCK: [2014-03-16 Sun 10:13]--[2014-03-16 Sun 10:23] =>  0:10
+   CLOCK: [2014-03-16 Sun 09:59]--[2014-03-16 Sun 10:13] =>  0:14
+
+   * Once again, the hard part of part a was getting the test to run
+     properly (14 min for part a).
+
+   * And part b took even less time, despite being slightly more involved
+     w.r.t. implementation.
+
+** P31
+   CLOCK: [2014-03-16 Sun 10:46]--[2014-03-16 Sun 10:46] =>  0:00
+   CLOCK: [2014-03-16 Sun 10:23]--[2014-03-16 Sun 10:46] =>  0:23
+
+   * Q: Where are P29 and P30?  Seems like there are a bunch of gaps in these
+     "ninety-nine" problems.
+
+   * It took less than perhaps 20 minutes to write a naive is_prime
+     (forgot to clock out), but it is too slow to be used on a prime
+     bignum.
+
+** transcribing remaining problems directly to files
+   CLOCK: [2014-03-16 Sun 11:51]--[2014-03-16 Sun 11:55] =>  0:04
+
+** P32
+   CLOCK: [2014-03-16 Sun 11:55]--[2014-03-16 Sun 11:55] =>  0:00
+
