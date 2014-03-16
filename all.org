@@ -284,6 +284,7 @@
    * And part b took even less time, despite being slightly more involved
      w.r.t. implementation.
 
+* arithmetic
 ** P31
    CLOCK: [2014-03-16 Sun 10:46]--[2014-03-16 Sun 10:46] =>  0:00
    CLOCK: [2014-03-16 Sun 10:23]--[2014-03-16 Sun 10:46] =>  0:23
@@ -312,12 +313,53 @@
      revise gcd and coprime to borrow insted of move made the code
      pretty ugly.
 
-** P35
+** P34, P36, P37
+   CLOCK: [2014-03-16 Sun 12:55]--[2014-03-16 Sun 12:59] =>  0:04
    CLOCK: [2014-03-16 Sun 12:17]--[2014-03-16 Sun 12:52] =>  0:35
 
-   * While puzzling over whether the exercise as described is buggy (since
+   * While puzzling over whether P37 exercise as described is buggy (since
      my manual calculation indicates that phi(10) == 4 but the improved
      algorithm yields phi(10) == 5), I also wondered whether there are
      other bugs lurking in my code, e.g. is my prime_factors going to
      ensure that all listed factors are in fact prime?  But in hindsight
      I think I am okay on this front.
+
+   * Ah, http://www.christiankissig.de/cms/index.php/programming/217-99-problems-in-ocaml
+     points out that even though the "official problems" show a sum here,
+     it should be a product.
+
+** P38
+   CLOCK: [2014-03-16 Sun 13:00]--[2014-03-16 Sun 13:03] =>  0:03
+
+   * The first explicit benchmarking problem; results below are without -O.
+
+     test arithmetic::bench_P38::bench_totient_phi          ... bench:   9056144 ns/iter (+/- 202278)
+     test arithmetic::bench_P38::bench_totient_phi_improved ... bench:     13957 ns/iter (+/- 414)
+
+   * (For some reason, with -O I am getting 0 ns/iter (+/- 0) for bench_totient_phi.  Very strange.)
+
+** P39
+   CLOCK: [2014-03-16 Sun 18:09]--[2014-03-16 Sun 18:24] =>  0:15
+
+   * Whoops, apparently I left a latent bug in is_prime, since it thinks 4 is prime,
+     and that was only uncovered now.  (Clearly my claim that the naive implementation
+     was "obviously correct" was itself a naive claim.)
+
+   * I see, my loop condition was `while i < n/2 { ... }`, not `i <= n/2`.
+     I think this implies that only 4 was mishandled here.  That's kind of
+     interesting.
+
+   * (Spent some time working out bug above and also investigating effects of `-O` flag
+      on both compile time and benchmark results)
+
+** P40
+   CLOCK: [2014-03-16 Sun 18:30]--[2014-03-16 Sun 18:49] =>  0:19
+   CLOCK: [2014-03-16 Sun 18:25]--[2014-03-16 Sun 18:27] =>  0:02
+
+   * spent time playing around with goldbach; unfortunately, as I well
+     know, my current is_prime function is too slow for this to work
+     well on anything close to a bignum.
+
+** P41
+   CLOCK: [2014-03-16 Sun 18:49]
+

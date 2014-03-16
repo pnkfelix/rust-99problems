@@ -16,7 +16,7 @@ fn is_prime<I:num::Integer+Clone>(n:I) -> bool {
     let two = one + one;
     let mut i = two.clone();
     let n_div_2 = n/two;
-    while i < n_div_2 {
+    while i <= n_div_2 {
         if (n/i)*i == n {
             return false;
         }
@@ -29,6 +29,7 @@ fn is_prime<I:num::Integer+Clone>(n:I) -> bool {
 fn test_is_prime() {
     use num::bigint::BigUint;
     use std::from_str::FromStr;
+    assert_eq!(false, is_prime(4));
     assert_eq!(true,  is_prime(7));
     assert_eq!(false, is_prime(10));
     assert_eq!(true,  is_prime(23));
@@ -198,20 +199,21 @@ fn test_prime_factors_mult() {
 ///     be efficiently calculated as follows: Let ((p1 m1) (p2 m2) (p3
 ///     m3) ...) be the list of prime factors (and their
 ///     multiplicities) of a given number m. Then phi(m) can be
-///     calculated with the following formula:
+///     calculated with the following formula (sic):
 ///
 ///     phi(m) = (p1 - 1) * p1 ** (m1 - 1) + (p2 - 1) * p2 ** (m2 - 1) +
 ///              (p3 - 1) * p3 ** (m3 - 1) + ...
 /// 
 ///     Note that a ** b stands for the b'th power of a.
+///
+///     Note that the "a + b" above stands for a product of a and b.
+///     (i.e. there is a typo in the original problem statement,
+///      thus my "sic" annotation).
 fn totient_phi_improved<I:num::Integer+Clone>(m:I) -> I {
     let one : I = One::one();
-    let zero : I = Zero::zero();
     let f = prime_factors_mult(m);
-    // 10 ==> (2 1) (5 1) ==> (2-1) * (2 ** 0) + (5 - 1)*(5 ** 0) 
-    //                     == 1 + 4 == 5 which does not match phi(10) == 4 given above...
-    f.move_iter().fold(zero, |b, (factor, count)| {
-        b + (factor - one) * std_num::pow(factor, count - 1)
+    f.move_iter().fold(one.clone(), |b, (factor, count)| {
+        b * (factor - one) * std_num::pow(factor, count - 1)
     })
 }
 
@@ -223,16 +225,84 @@ fn test_totient_phi_improved() {
 // 
 // P38 (*) Compare the two methods of calculating Euler's totient function.
 //     Use the solutions of problems P34 and P37 to compare the algorithms. Take the number of logical inferences as a measure for efficiency. Try to calculate phi(10090) as an example.
-// 
+mod bench_P38 {
+    extern crate test;
+    use self::test::BenchHarness;
+    use super::{totient_phi_improved, totient_phi};
+
+    #[bench]
+    fn bench_totient_phi(bh: &mut BenchHarness) {
+        bh.iter(|| {
+            totient_phi(10090);
+        });
+    }
+
+    #[bench]
+    fn bench_totient_phi_improved(bh: &mut BenchHarness) {
+        bh.iter(|| {
+            totient_phi_improved(10090);
+        });
+    }
+}
+
 // P39 (*) A list of prime numbers.
 //     Given a range of integers by its lower and upper limit, construct a list of all prime numbers in that range.
-// 
+
+fn list_primes<I:num::Integer+Clone>(low_incl: I, high_incl: I) -> ~[I] {
+    // Another naive (very slow) approach.  Would be much better to
+    // investigate using e.g. Sieve of Erasthones
+    let mut result = ~[];
+    let one : I = One::one();
+    let zed : I = Zero::zero();
+    let mut n = low_incl.clone();
+    let mut count = high_incl - low_incl + one;
+    while count > zed {
+        if is_prime(n.clone()) {
+            result.push(n.clone());
+        }
+        n = n + one;
+        count = count - one;
+    }
+    return result;
+}
+
+#[test]
+fn test_list_primes() {
+    assert_eq!(~[3, 5, 7, 11], list_primes(3, 12));
+}
+
 // P40 (**) Goldbach's conjecture.
 //     Goldbach's conjecture says that every positive even number greater than 2 is the sum of two prime numbers. Example: 28 = 5 + 23. It is one of the most famous facts in number theory that has not been proved to be correct in the general case. It has been numerically confirmed up to very large numbers (much larger than we can go with our Prolog system). Write a predicate to find the two prime numbers that sum up to a given even integer.
 // 
 //     Example:
 //     * (goldbach 28)
 //     (5 23)
+pub fn goldbach<I:num::Integer+Clone+::std::fmt::Show>(n:I) -> (I,I) {
+    let one : I = One::one();
+    let two : I = one + one;
+    let mut i = two.clone();
+    if n % two == one || n <= two {
+        fail!("Can only test goldbach conjecture on even numbers > 2");
+    }
+    let n_div_2 = n / two;
+    while i <= n_div_2 {
+        let n_sub_i = n - i;
+        debug!("goldbach trying: {} {}", i, n_sub_i);
+        if is_prime(i.clone()) && is_prime(n_sub_i.clone()) {
+            return (i, n_sub_i);
+        }
+        i = i + one;
+    }
+    fail!("goldbach was wrong! {}", n);
+}
+
+#[test]
+fn test_goldbach() {
+    assert_eq!((5, 23), goldbach(28));
+    assert!({ println!("{}", goldbach(100)); true });
+}
+
+
 // 
 // P41 (**) A list of Goldbach compositions.
 //     Given a range of integers by its lower and upper limit, print a list of all even numbers and their Goldbach composition.
