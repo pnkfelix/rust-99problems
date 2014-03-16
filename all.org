@@ -296,8 +296,28 @@
      bignum.
 
 ** transcribing remaining problems directly to files
+   CLOCK: [2014-03-16 Sun 11:55]--[2014-03-16 Sun 11:58] =>  0:00
    CLOCK: [2014-03-16 Sun 11:51]--[2014-03-16 Sun 11:55] =>  0:04
 
 ** P32
-   CLOCK: [2014-03-16 Sun 11:55]--[2014-03-16 Sun 11:55] =>  0:00
+   CLOCK: [2014-03-16 Sun 11:58]--[2014-03-16 Sun 12:05] =>  0:07
 
+** P33
+   CLOCK: [2014-03-16 Sun 12:05]--[2014-03-16 Sun 12:07] =>  0:02
+
+** P34
+   CLOCK: [2014-03-16 Sun 12:07]--[2014-03-16 Sun 12:17] =>  0:10
+
+   * Not happy about my use of clone here.  But my brief attmepts to
+     revise gcd and coprime to borrow insted of move made the code
+     pretty ugly.
+
+** P35
+   CLOCK: [2014-03-16 Sun 12:17]--[2014-03-16 Sun 12:52] =>  0:35
+
+   * While puzzling over whether the exercise as described is buggy (since
+     my manual calculation indicates that phi(10) == 4 but the improved
+     algorithm yields phi(10) == 5), I also wondered whether there are
+     other bugs lurking in my code, e.g. is my prime_factors going to
+     ensure that all listed factors are in fact prime?  But in hindsight
+     I think I am okay on this front.
